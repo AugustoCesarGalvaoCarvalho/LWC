@@ -1,0 +1,291 @@
+1ª Questão - A empresa Mamaco corp, está passando por um atualização tecnológica dentro da sua
+empresa. Para ajudar o C.O Prandis, foi solicitado a realização de um componente
+para auxiliar na criação de fluxo de Leads de maneira rápida com as informações mínimas
+necessárias para sua conversão. Essa ferramenta deve estar disponível na tela inicial do
+aplicativo de vendas.
+1.A - Emitir uma mensagem “Lead criado com sucesso” após clicar no botão.
+
+*********************************************** COMPONENT ***********************************************
+
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId" access="global" >
+         <aura:attribute name="pageReference" type="Object" /> 
+    <lightning:card title="Criação de Lead">
+             <lightning:navigation aura:id="navService"/> 
+        <div class="slds-p-around_medium">
+            
+                <lightning:recordEditForm aura:id="recordEditForm" objectApiName="Lead" onsuccess="{!c.handleSuccess}">
+                    <lightning:messages />
+                    <lightning:inputField fieldName="FirstName" />
+<lightning:inputField fieldName="LastName" />
+                    <lightning:inputField fieldName="Company" />
+                     <lightning:inputField fieldName="Phone" />
+                     <lightning:inputField fieldName="MobilePhone" />
+                    <lightning:inputField fieldName="Status"/>
+                                    <lightning:button class="slds-m-left_x-small" variant="brand" type="submit" name="create" label="Enviar"/>        
+           		 </lightning:recordEditForm>     
+
+        	</div>
+        	</lightning:card>        
+    
+</aura:component>
+
+*********************************************** CONTROLLER ***********************************************
+
+({
+	handleSuccess : function(component, event, helper) {     
+     
+        var toastEvent = $A.get("e.force:showToast");
+       	
+        toastEvent.setParams({
+            'title' : 'Feito!',
+            'message' : 'Lead criada com Sucesso!!! =D',
+            'type' : 'success'
+        });
+        
+        toastEvent.fire();
+               
+        var registroCriado = event.getParams();
+        console.log(registroCriado.response.id);
+        
+        var navService = component.find("navService");
+              
+        var pageReference = {
+            "type": 'standard__recordPage',         
+            "attributes": {              
+                "recordId": registroCriado.response.id,
+                "actionName": "view",               
+                "objectApiName":"Lead"              
+            }        
+        }; 
+        //setar para o atributo lááááá do aura chamado pageReference, o nosso objeto montado acima
+        component.set("v.pageReference", pageReference);
+        //pegar as informações de referencia do componente
+        var redirect = component.get("v.pageReference");
+        //mandar o redirecionamento via navigation
+        navService.navigate(redirect);       
+	},
+    handleReset: function(cmp) {
+        cmp.find('field').forEach(function(f) {
+            f.reset();
+        });
+    }
+})
+
+
+
+
+
+2ª Questão - Durante uma reunião da Mamaco corp, foi identificado uma dificuldade por parte da
+Diretoria em identificar uma lista de contas presentes na org que mostre as principais
+informações do cliente.
+2.A - Para melhorar a visualização ajuste a lista em ordem por Nome ou data de criação.
+2.B - Realiza a criação da tarefa acima utilizando componente Lightning Accordion.
+
+********************************** CLASSE **********************************
+
+public class AccountClass {
+
+    @AuraEnabled
+    public static List<Account> listaConta(){
+        return [Select Name, Rating, AnnualRevenue FROM Account Order by Name];
+    }
+    
+}
+
+********************************** COMPONENT **********************************
+
+<aura:component controller="AccountClass" implements="flexipage:availableForAllPageTypes" access="global" >
+    <aura:attribute name="account" type="Account[]" />
+    <!--aura:handler-->
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    
+    <lightning:card iconName="standard:opportunity" title="Contas em Negociação">
+    	<div class="slds-p-around_medium">
+            <aura:iteration items="{!v.account}" var="account">
+                <p>------------</p>
+                <p>{!opp.Name}</p>
+                <p>{!opp.Amount}</p>
+                <p>{!opp.StageName}</p>
+                <p>{!opp.CloseDate}</p>
+            </aura:iteration>
+        </div>
+    </lightning:card>
+</aura:component>
+
+********************************** CONTROLLER **********************************
+
+({
+	doInit : function(component, event, helper) {
+		helper.getAccount(component);
+	}
+})
+
+************************************* HELPER *************************************
+
+({
+	getAccount : function(component) {
+	
+		let action = component.get("c.listaConta");
+        
+        action.setCallback(this, function(response) {
+            let state = response.getState();
+            console.log(state);
+            if(state == "SUCCESS"){
+                component.set("v.opps", response.getReturnValue());
+                console.log(response.getReturnValue());
+            }
+        });
+        
+        $A.enqueueAction(action);
+	}
+})
+
+
+
+
+
+3ª Questão
+3ª - Deve ser criado para a CEO um componente lightning que permita identificar quais
+clientes foram contatados ou não durante o processo de “Negociação”.
+obs:*Caso não tenha esse status utilize algo próximo*
+
+************************************* CLASSE *************************************
+
+public class AccountClass2 {
+    
+    @AuraEnabled  
+    public static List<Account> listadeconta() {
+        return [SELECT Name, Contatado__c, Rating
+                FROM Account
+			          WHERE Rating = 'Hot'];        
+    }
+}
+
+************************************* COMPONENT *************************************
+
+<aura:component controller="AccountClass2" implements="flexipage:availableForAllPageTypes" access="global" >
+    <aura:attribute name="account" type="Account[]" />
+    <!--aura:handler-->
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    
+    <lightning:card iconName="standard:account" title="Contas Contatadas">
+    	<div class="slds-p-around_medium">
+            <aura:iteration items="{!v.contatado}" var="acc">
+                <p>{!acc.Name}</p>
+                <p>{!acc.Contatado__c}</p>
+                <p>{!acc.Rating}</p>
+            </aura:iteration>
+        </div>
+    </lightning:card>
+</aura:component>
+
+************************************* CONTROLLER *************************************
+
+({
+	doInit : function(component, event, helper) {
+		helper.getConta(component);
+	}
+})
+
+************************************* HELPER *************************************
+
+ ({
+	getConta : function(component) {
+	
+		let action = component.get("c.listadeconta");
+        
+        action.setCallback(this, function(response) {
+            let state = response.getState();
+            console.log(state);
+            if(rating == "Hot"){
+                component.set("v.acc", response.getReturnValue());
+                console.log(response.getReturnValue());
+            }
+        });
+        
+        $A.enqueueAction(action);
+	}
+})
+
+
+
+
+
+
+4ª Questão - Criar um componente aura que mostre uma lista de material para compras internas da
+empresa.
+A lista precisa conter as informações de “Nome do Produto”, “Data da Compra”, “Preço
+Unitário”, “Preço Total”.
+4.A - Precisa ter um título que exiba “Lista Compras para o escritório”
+4.B - Tamanho da fonte deve ser 18px
+4.C - Possibilidade de inserção de novos itens através da aplicação.
+
+******************************************** COMPONENT ********************************************
+
+<aura:component implements="flexipage:availableForAllPageTypes,force:lightningQuickAction,force:hasRecordId" access="global" >
+     <aura:attribute name="pageReference" type="Object" /> 
+     <lightning:navigation aura:id="navService"/> 
+     <lightning:card iconName="standard:user"  title="Lista compras para o escritório">
+    <div class="slds-p-around_medium">
+            <lightning:recordEditForm 
+            	objectApiName="compraescritorio__c"
+                aura:id="recordEditForm"
+				onsuccess="{!c.handleSuccess}">
+            	 <lightning:inputField fieldName="Name" aura:id="field"/>
+                 <lightning:inputField fieldName="Data_da_Compra__c" aura:id="field"/>
+                <lightning:inputField fieldName="Quantidade_de_Produtos__c" aura:id="field"/>
+                <lightning:inputField fieldName="Descri_o_do_Item__c" aura:id="field"/>
+                <lightning:inputField fieldName="Pre_o_Unit_rio__c" aura:id="field"/>
+                <lightning:inputField fieldName="Pre_o_Total__c	" aura:id="field"/>
+                
+                <lightning:button class="slds-m-top_small" onclick="{!c.handleReset}" label="Limpar"/>
+                <lightning:button class="slds-m-top_small" type="submit" variant="brand" label="Criar novo item"/>
+            </lightning:recordEditForm>
+        </div>
+    </lightning:card>
+</aura:component>
+
+******************************************** CONTROLLER ********************************************
+
+({
+	handleSuccess : function(component, event, helper) {     
+               
+        var toastEvent = $A.get("e.force:showToast");
+      
+        toastEvent.setParams({
+            'title' : 'Feito!',
+            'message' : 'Item criado com Sucesso!!! =D',
+            'type' : 'success'
+        });
+        
+        toastEvent.fire();
+          
+        
+        var registroCriado = event.getParams();
+        console.log(registroCriado.response.id);
+        
+        var navService = component.find("navService");
+                
+        var pageReference = {
+            "type": 'standard__recordPage',         
+            "attributes": {              
+                "recordId": registroCriado.response.id,
+                "actionName": "view",               
+                "objectApiName":"Materialcomprainterna__c"              
+            }        
+        };
+        
+        console.log(pageReference);
+               
+        component.set("v.pageReference", pageReference);
+       
+        var redirect = component.get("v.pageReference");
+        
+        navService.navigate(redirect);       
+	},
+    handleReset: function(cmp) {
+        cmp.find('field').forEach(function(f) {
+            f.reset();
+        });
+    }
+})
