@@ -1,0 +1,139 @@
+Questão 1 - (input-basic-lwc)
+Crie um componente LWC, que contenha os campos nome, peso e altura. 
+Passe os dados para variáveis individuais da classe (nome, peso e altura)
+Crie uma função ativada através do onCLick, que exiba o calculo do imc no componente como resultado.
+Dica: crie uma var na classe para receber o calculo, e mostre ela no componente.
+
+******************************************************** HTML *********************************************************
+
+<template>
+
+	<lightning-card title="Formulário">
+		<div class="slds-m-around_medium">
+			<!-- o name do campo deve ser igual a key lááááá do outro lado  -->
+			<lightning-input type="text" name="nome" label="Nome:">
+			</lightning-input>
+			<lightning-input type="text" name="weight" label="Peso:" onchange={handleOnChangePeso}>
+			</lightning-input>
+			<lightning-input type="decimal" name="height" label="Altura:" onchange={handleOnChangeAltura}>
+			</lightning-input>
+			<lightning-button label="Clique aqui" variant="brand" onclick={handleOnClick}>
+			</lightning-button>
+			<p>{result}</p>
+		</div>
+
+	</lightning-card>
+
+</template>
+
+************************************************************ JS ***********************************************************
+
+import { LightningElement } from "lwc";
+
+export default class App extends LightningElement {
+  
+    height;
+    weight;
+    result; //= (parseFloat(peso) / (parseFloat(altura) **2)).toFixed(2);
+    
+    
+    /**
+     * Object com os campos do form (key)
+     */
+    /*inputs = {
+      name: '',
+      height: '',
+      weight: ''
+    };*/
+
+    handleOnChangeAltura(event){
+      this.height = event.detail.value;
+
+    }
+
+    handleOnChangePeso(event){
+      this.weight = event.detail.value;
+
+    }
+
+    handleOnClick(){
+      this.result = this.height / (this.height **2).toFixed(2)
+    }
+
+}
+
+Questão 2 - (input-object-spread)
+Crie um componente LWC, que contenha os campos: primeironome, sobrenome, email, website, empresa, receita anual 
+e através de uma única função (handleInputChange) monte o objeto com os dados estruturados.
+
+*************************************************** HTML **************************************************
+
+<template>
+
+	<lightning-card title="Formulário">
+		<div class="slds-m-around_medium">
+			<lightning-input type="text" name="firstName" label="Primeiro Nome:" onchange={handleInputChange}>
+			</lightning-input>
+			<lightning-input type="text" name="lastName" label="Sobrenome:" onchange={handleInputChange}></lightning-input>
+			<lightning-input type="email" name="email" label="Email:" onchange={handleInputChange}></lightning-input>
+			<lightning-input type="text" name="website" label="Website:" onchange={handleInputChange}></lightning-input>
+			<lightning-input type="text" name="company" label="Empresa:" onchange={handleInputChange}></lightning-input>
+			<lightning-input type="number" name="annualrevenue" label="Receita Anual:" onchange={handleInputChange}>
+			</lightning-input>
+			<br>
+			<lightning-button label="Enviar" variant="brand" onclick={onSpread}></lightning-button>
+		</div>
+	</lightning-card>
+</template>
+
+
+******************************************************** JS ********************************************************
+
+import { LightningElement } from "lwc";
+
+export default class App extends LightningElement {
+    /**
+     * Object com os campos do form (key)
+     */
+    inputs = {
+      firstName: '',
+      lastName: '',
+      email: '',
+      website: '',
+      company: '',
+      annualrevenue: '',
+    };
+
+    /**
+     * Operador Spread ->>> Espalhamento
+     * Expandir valores de um array ou object dentro de outro
+     */
+
+    array = [1,2,3];
+    new = [];
+
+    handleInputChange(event){
+      // console.log("valor do campo: " + event.detail.value);
+      // console.log("valor do atributo name do campo: " + event.target.name);
+
+      let nameInput = event.target.name;
+      let value = event.detail.value;
+
+      //montando  o object com valores
+      this.inputs = {...this.inputs, [nameInput]:value};
+      console.log(this.inputs);
+    }
+
+    onSpread(){
+      this.new = [4,5,6,this.array];
+      console.log(this.new);
+      this.new = [4,5,6, ...this.array];
+      console.log(this.new);
+    }
+}
+
+
+(Consultas)
+https://github.com/FilipeSkmc/input-basic-lwc
+https://github.com/FilipeSkmc/input-object
+https://github.com/FilipeSkmc/input-object-spread
