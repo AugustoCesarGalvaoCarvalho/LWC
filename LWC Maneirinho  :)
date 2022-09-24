@@ -1,4 +1,4 @@
-1 - O diretor da empresa Yusuki Urameshi está tendo dificuldades em realizar cálculos simples durante a etapa de capitalização de clientes. O time de desenvolvimento foi
+1ª Questão - O diretor da empresa Yusuki Urameshi está tendo dificuldades em realizar cálculos simples durante a etapa de capitalização de clientes. O time de desenvolvimento foi
 acionado para a criação de um componente que o auxilie na realização de cálculos básicos na página da home na organização.
 1.A - O componente deve conter além dos botões de operações, um botão para limpar os números/informações digitados de nome “Clear” e um botão “=” para mostrar o resultado da
 operação.
@@ -90,6 +90,720 @@ export default class Calculator extends LightningElement {
 <LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>55.0</apiVersion>
     <isExposed>true</isExposed>
+    <targets>
+        <target>lightning__AppPage</target>
+        <target>lightning__HomePage</target>
+        <target>lightning__RecordPage</target>
+    </targets> 
+</LightningComponentBundle>
+
+
+_________________________________________________________________________________________________________________________________________________________________
+
+
+
+2ª Questão - A Bololo company está com dificuldades para realizar a recuperação de todas alguns
+registros de Oportunidades. O time de projetos está solicitando aos desenvolvedores
+SalesForce um aplicativo que seja capaz de realizar essa recuperação e os exiba em um
+componente LWC limitando por apenas 5 registros com os dados ID, Nome, Amount e fase
+em “Negotiation/Review”.
+2.A - Certifique-se que ele está exibindo sempre os últimos 5 registros.
+2.B - Realizar a inclusão de um campo data de criação
+
+***************************************** HTML *****************************************
+
+<template>
+
+    <lightning-card title="Últimas Oportunidades" icon-name="standard:account">
+        <div class="slds-m-around_medium">
+            <lightning-datatable key-field="id" data={opportunities} columns={columns} hide-checkbox-column>
+    </lightning-datatable>
+        </div>
+    </lightning-card>
+    
+</template>
+
+***************************************** JS *****************************************
+
+import { LightningElement, wire } from 'lwc';
+import getListOpportunity from '@salesforce/apex/OpportunityController1.getListOpportunity';
+
+export default class BololoCompany extends LightningElement {
+    
+    opportunities;
+    error;
+     
+    columns = [
+        {label:'Nome', fieldName:'Name'},
+        {label:'Fase', fieldName:'StageName'},
+        {label:'Data de criação', fieldName:'CreatedDate'},
+        {label:'Valor', fieldName:'Amount'},
+    ]
+
+    @wire(getListOpportunity)wiredOpportunities({error, data}){
+        if(data){
+            this.opportunities = data;
+            this.error = undefined;
+            console.log(data);
+           
+        }else if(error){
+            this.error = data;
+            this.opportunities = undefined;
+            
+        }
+    }
+}
+
+***************************************** XML *****************************************
+
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>55.0</apiVersion>
+    <isExposed>true</isExposed>
+    <targets>
+        <target>lightning__AppPage</target>
+        <target>lightning__HomePage</target>
+        <target>lightning__RecordPage</target>
+    </targets> 
+</LightningComponentBundle>
+
+
+_________________________________________________________________________________________________________________________________________________________________
+
+
+
+3ª Questão - A WS Soluções está passando por um processo de transição ao sistema SalesForce,
+para aprimorar o desenvolvimento da plataforma aos funcionários, foi solicitado ao time de
+desenvolvimento a criação de um componente lwc que insira uma oportunidade, com os
+campos obrigatórios da mesma e exiba a baixo um card com a oportunidade criada e seus
+dados.
+
+*********************************************** HTML ***********************************************
+
+<template>
+
+    <lightning-card title="Nova Oportunidade" icon-name="action:new_opportunity" class="slds-m-top_small slds-align_absolute-center">
+        <div class="slds-m-around_medium">
+            <lightning-record-edit-form object-api-name="Opportunity" onsuccess={handleSuccess}>
+            <p><lightning-messages></lightning-messages></p>
+                
+                <p><lightning-input-field field-name="Name"></lightning-input-field></p>
+                <p><lightning-input-field field-name="StageName"></lightning-input-field></p>
+                <p><lightning-input-field field-name="CloseDate"></lightning-input-field></p>
+
+                <p>
+                    <lightning-button label="Criar Oportunidade" type="submit" variant="brand"></lightning-button>                 
+                    <lightning-button label="Cancel" onclick={handleReset}></lightning-button>
+                </p>
+                
+            </lightning-record-edit-form>
+            
+        </div>
+    </lightning-card>
+    <br>
+    <template if:true={visivel}>
+        <lightning-card title="Oportunidade CRIADA com SUCESSO!" icon-name="standard:opportunity">
+            <div class="slds-m-around_medium">
+                <lightning-record-view-form object-api-name="Opportunity" record-id={recordId}>
+                    <lightning-output-field field-name="Name"></lightning-output-field>
+                    <lightning-output-field field-name="StageName"></lightning-output-field>
+                    <lightning-output-field field-name="CloseDate"></lightning-output-field>
+                </lightning-record-view-form>
+            </div>
+        </lightning-card>
+    </template>
+
+</template>  
+
+*********************************************** JS ***********************************************
+
+import { LightningElement } from 'lwc';
+
+export default class InserirOportunidades extends LightningElement {
+    
+    visivel = false;
+    recordId; 
+
+    handleSuccess(event){
+        this.recordId = event.detail.id;
+        this.visivel = true;
+    }
+
+    handleReset() {
+        //seleciona todos os elementos lightning-input-field
+        const inputFields = this.template.querySelectorAll('lightning-input-field');
+        //se possuir dados, para cada campo reset
+        if (inputFields) {
+            inputFields.forEach(field => {field.reset();});
+        }
+        //exclui o card que conta criada
+        this.visivel = false;
+     }
+}
+
+*********************************************** XML ***********************************************
+
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>55.0</apiVersion>
+    <isExposed>true</isExposed>
+    <targets>
+        <target>lightning__AppPage</target>
+        <target>lightning__HomePage</target>
+        <target>lightning__RecordPage</target>
+    </targets> 
+</LightningComponentBundle>
+
+
+_________________________________________________________________________________________________________________________________________________________________
+
+
+
+4ª Questão - Durante a reunião de projetos da empresa Bololo foi identificado que o time de vendas
+está com dificuldade na realização de criação de leads. Foi solicitado ao time de
+desenvolvimento a criação de um componente LWC de formulário que crie um lead com os
+campos obrigatórios, receita anual, classificação, mobile phone e telefone.
+4.A - Exiba uma mensagem via ToastEvent em caso de sucesso e redirecionando o usuário para a página do LEAD
+4.A - Crie um metódo para limpar os dados do formulário se necessário
+
+******************************************** HTML ********************************************
+
+<template>
+
+    <lightning-card title="Novo Lead " icon-name="action:new_lead">
+        <div class="slds-m-top_small slds-align_absolute-center" >
+            <lightning-record-edit-form object-api-name="Lead" onsuccess={handleSuccess}>
+            <p><lightning-messages></lightning-messages></p>
+                <p><lightning-input-field field-name="Name"></lightning-input-field></p>
+                <p><lightning-input-field field-name="Company"></lightning-input-field></p>
+                <p><lightning-input-field field-name="Status"></lightning-input-field></p>
+
+                <p>
+                    <lightning-button label="Cancel" onclick={handleReset}></lightning-button>
+                    <lightning-button label="Criar Lead" type="submit" variant="brand"></lightning-button>                 
+                </p>
+                
+            </lightning-record-edit-form>
+            
+        </div>
+    </lightning-card>
+
+</template>
+
+******************************************** JS ********************************************
+
+import { LightningElement } from 'lwc';
+import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+import { NavigationMixin } from 'lightning/navigation';
+
+export default class InserirLead extends NavigationMixin(LightningElement){
+
+recordId; 
+
+    handleSuccess(event){
+
+        this.recordId = event.detail.id;
+    
+        const toastEvent = new ShowToastEvent({
+            title:'Parabéns!',
+            message:'Lead' + event.detail.id + ' foi criado com sucesso!',
+            variant: 'success'
+        });
+        
+    this.dispatchEvent(toastEvent);
+
+        this[NavigationMixin.Navigate]({
+            type: 'standard__recordPage',
+            attributes: {
+            recordId: event.detail.id,
+            objectApiName: 'Lead',
+            actionName: 'home',
+            },
+        });
+        
+    }   
+    handleReset() {
+
+        const inputFields = this.template.querySelectorAll('lightning-input-field');
+
+        if (inputFields) {
+            inputFields.forEach(field => {
+                field.reset();
+            });
+        }
+     }
+}
+
+******************************************** XML ********************************************
+
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>55.0</apiVersion>
+    <isExposed>true</isExposed>
+    <targets>
+        <target>lightning__AppPage</target>
+        <target>lightning__HomePage</target>
+        <target>lightning__RecordPage</target>
+    </targets> 
+</LightningComponentBundle>
+
+
+____________________________________________________________________________________________________________________________________________________________________
+
+
+
+5 Questão - Crie um Contato em lwc, através do componente record-form, importando os dados
+direto da ORG.
+
+Ex: Criar um Contato em LWC, através do component (RECORD-FORM), importando os dados direto da ORG
+
+*********************************************** HTML ***********************************************
+
+<template>
+
+    <lightning-card title="Novo Contato" icon-name="action:new_contact">
+        <div class="slds-m-around_medium" >
+            <lightning-record-form object-api-name="Contact" fields={fields} onsuccess={handleSuccess}>
+            </lightning-record-form>
+        </div>
+    </lightning-card>
+
+</template>
+
+*********************************************** JS ***********************************************
+
+import { LightningElement, api } from 'lwc';
+import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+import nameCont from '@salesforce/schema/Contact.Name';
+
+export default class CriarCttoImportarDaOrg extends LightningElement {
+
+    @api Contact;
+    fields = [nameCont];
+
+    handleSuccess(event){
+    
+        const Event1 = new ShowToastEvent({
+            title:'Parabéns!',
+            message:'Contato criado com sucesso!',
+            variant: 'success',
+        });
+        this.dispatchEvent(Event1); 
+    }    
+}
+
+*********************************************** XML ***********************************************
+
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>55.0</apiVersion>
+    <isExposed>true</isExposed>
+    <targets>
+        <target>lightning__AppPage</target>
+        <target>lightning__HomePage</target>
+        <target>lightning__RecordPage</target>
+    </targets> 
+</LightningComponentBundle>
+
+
+____________________________________________________________________________________________________________________________________________________________________
+
+
+
+6ª Questão - Realize a análise de código do git com foco no newAccountUiRecordApi, e monte um
+formulário focado em Lead, baseado na estrutura de código vista no exemplo.
+
+--->>     https://github.com/FilipeSkmc/newAccountUiRecordApi     <<---     
+
+7ª Questão - Adapte o código do newAccountUiRecordApi, para que ao obter sucesso(.then), o
+usuário seja direcionado para a página do registro.
+
+EX: Monte um formulário focado em Lead, com IMPORT de dados, com TOASTevent, com criação de OBJ, criação de registro e THEN+CATCH
+
+*************************************************** HTML ***************************************************
+
+<template>
+    <lightning-card title="Novo Lead" icon-name="standard:record">
+        <div class="slds-m-around_medium">
+
+            <lightning-input label="Nome" name="LastName" onchange={handleInputChange} class="slds-m-bottom_x-small"></lightning-input>
+            <lightning-input type="text" label="Empresa" name="Company" onchange={handleInputChange} class="slds-m-bottom_x-small"></lightning-input>
+            <lightning-combobox name="Status" label="Status" value={value} placeholder="Selecione o status do Lead" options={opcao} onchange={handleInputChange} required></lightning-combobox>
+            <br>
+            <lightning-button label="Salvar" variant="brand" onclick={createLead}></lightning-button>
+
+        </div>
+    </lightning-card>
+</template>
+
+*************************************************** JS ***************************************************
+
+import { LightningElement, track } from 'lwc';
+import Lead from '@salesforce/schema/Lead';
+import LastName from '@salesforce/schema/Lead.LastName';
+import Company from '@salesforce/schema/Lead.Company';
+import Status from '@salesforce/schema/Lead.Status';
+import {ShowToastEvent} from 'lightning/platformShowToastEvent';
+import { createRecord } from 'lightning/uiRecordApi';
+
+export default class reviewCodeNewAcc extends LightningElement {
+    
+    lead = {
+        Name: "",
+        Company: "",
+        Status: "",
+    };
+
+    handleInputChange(event){
+
+        let name_ = event.target.name;
+        let value_ = event.target.value;
+
+        this.lead = {...this.lead, [name_]:value_};
+    }
+
+    createLead(){
+
+        const fields = {};
+         
+        fields[LastName.fieldApiName] = this.lead.LastName;
+        fields[Company.fieldApiName] = this.lead.Company;
+        fields[Status.fieldApiName] = this.lead.Status;
+
+        const recordInput = {apiName: Lead.objectApiName, fields};
+
+        createRecord(recordInput
+        ).then(
+            (event)=>{
+                
+                const confirm = new ShowToastEvent({
+                    title:'Lead criado',
+                    message: 'ID do Lead: ' + event.id,
+                    variant: 'success'
+                });
+                this.dispatchEvent(confirm);
+            }
+        ).catch(
+            (error)=>{
+                const erro = new ShowToastEvent({
+                    title:'Erro',
+                    message: error.body.message, 
+                    variant: 'error'
+                });
+                this.dispatchEvent(erro);
+            }
+        )
+    }
+    get opcao(){
+        return [
+            { label: 'Open - Not Contacted', value: 'Open - Not Contacted' },
+            { label: 'Working - Contacted', value: 'Working - Contacted' },
+            { label: 'Closed - Converted', value: 'Closed - Converted' },
+            { label: 'Closed - Not Converted', value: 'Closed - Not Converted' },
+        ];
+    }
+}
+
+*************************************************** XML ***************************************************
+
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>55.0</apiVersion>
+    <isExposed>true</isExposed>
+    <targets>
+        <target>lightning__HomePage</target>
+    </targets>
+</LightningComponentBundle>
+
+
+____________________________________________________________________________________________________________________________________________________________________
+
+
+
+8ª Questão - Criar um componente LWC que mostre uma lista de material para compras internas da
+empresa. A lista precisa conter as informações de “Nome do Produto”, “Data da Compra”, “Preço Unitário”, “Preço Total”.
+8.A - Precisa ter um título que exiba “Lista Compras para o escritório”
+8.B - Tamanho da fonte deve ser 18px
+8.C - Possibilidade de inserção de novos itens através da aplicação.
+
+*********************************************** CLASSE *********************************************
+
+public with sharing class MateriaisController {
+
+    @AuraEnabled(cacheable=true)
+       public static List<Material__c> getListMateriais(){
+           return[SELECT id, Nome_do_Produto__c, Data_da_Compra__c, Preco_Unitario__c	 
+                  FROM Material__c
+                  ORDER BY CreatedDate desc
+                  LIMIT 5];
+       }   
+   }
+
+*********************************************** HTML ***********************************************
+
+<template>
+
+    <lightning-card title="Lista Compras para o escritório" icon-name="standard:account">
+        <div class="slds-m-around_medium" >
+            <lightning-datatable key-field="id" data={materiais} columns={columns}>
+    </lightning-datatable>
+        </div>
+    </lightning-card>
+    
+</template>
+
+*********************************************** JS ***********************************************
+
+import { LightningElement, wire } from 'lwc';
+import getListMateriais from '@salesforce/apex/MateriaisController.getListMateriais';
+
+export default class MostrarComprasInternas extends LightningElement {
+   
+    materiais;
+    error;
+    
+    columns = [
+        {label:'Nome do Produto', fieldName:'Nome_do_Produto__c'},
+        {label:'Data da Compra', fieldName:'Data_da_Compra__c', ty: 'date'},
+        {label:'Preço unitário', fieldName:'Preco_Unitario__c', type:'currency'},
+    ]
+
+    @wire(getListMateriais)wiredMateriais({error, data}){
+        if(data){
+            this.materiais = data;
+            this.error = undefined;
+           
+        }else if(error){
+            this.error = data;
+            this.materiais = undefined;
+            
+        }
+    }
+}
+
+*********************************************** XML ***********************************************
+
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>55.0</apiVersion>
+    <isExposed>true</isExposed>
+    <targets>
+        <target>lightning__AppPage</target>
+        <target>lightning__HomePage</target>
+        <target>lightning__RecordPage</target>
+    </targets> 
+</LightningComponentBundle>
+
+
+___________________________________________________________________________________________________________________________________________________________________
+
+
+
+9ª Questão - Crie uma trigger que após a criação e atualização de um Lead, seja realizado uma task
+de +7 dias para o usuário entrar em contato. Crie um componente LWC que mostre a lista de task do usuário para atendimento.
+9. A - Classe de Teste obrigatória
+
+********************************************* CLASS QUESTÃO 9  ********************************************
+
+public class LeadHandlerQuestao9 {
+    
+    public static void LeadAfter (List<Lead> listaLead){
+        
+        List<Task> listaTarefas = new List<Task>();
+        for(Lead newLead : listaLead){
+            
+            task novaTarefa = new Task();
+            
+            novaTarefa.subject = 'Entrar em contato!';
+            novaTarefa.WhoId = newLead.Id;
+            novaTarefa.ActivityDate = System.today() + 7;
+            listaTarefas.add(novaTarefa);        
+        }
+        if(!listaTarefas.isEmpty()) {
+            insert listaTarefas;
+        }
+    }
+}
+
+********************************************* CLASS TEST QUESTÃO 9  ********************************************
+
+@isTest
+public class LeadHandlerQuestao9Test {  
+    
+    @isTest 
+    public static void testCreateLeadTaskInsertPositive() {
+        
+        Lead newLead = new Lead(); 
+        
+        newLead.LastName = 'Teste';
+        newLead.Company = 'Testando SA';
+        
+        insert newLead;
+        
+        List<Lead> lstLead = new List<Lead>();
+        lstLead = [SELECT Id 
+                   FROM Lead 
+                   WHERE Id =: newLead.id];
+        
+        List<Task> lstTask = new List<Task>();
+        lstTask = [SELECT Id, WhoId 
+                   FROM Task 
+                   WHERE WhoId in: lstLead];
+        
+        System.assert (lstTask != NULL, 'A tarefa foi criada'); 
+    }
+    
+    @isTest 
+    public static void testCreateLeadTaskInsertNegative(){
+        
+        Lead newLead = new Lead(); 
+        
+        newLead.LastName = 'Teste';
+        newLead.Company = 'Testando SA';
+       
+        insert newLead;
+        
+        List<Lead> lstLead = new List<Lead>();
+        lstLead = [SELECT Id 
+                   FROM Lead 
+                   WHERE Id=:newLead.id];
+        
+        List<Task> lstTask = new List<Task>();
+        lstTask = [SELECT Id, WhoId 
+                   FROM Task 
+                   WHERE WhoId in: lstLead];
+       
+        System.assert (lstTask.size() == 0, 'O resultado não é o esperado!');    
+    }
+    
+    @isTest 
+    public static void testCreateLeadTaskUpdatePositive() {
+        
+        Lead newLead = new Lead(); 
+        
+        newLead.LastName = 'Teste';
+        newLead.Company = 'Testando SA';
+        
+        insert newLead;
+        
+        List<Lead> lstLead = new List<Lead>();
+        lstLead = [SELECT Id 
+                   FROM Lead 
+                   WHERE Id=:newLead.id];
+        
+        List<Task> lstTask = new List<Task>();
+        lstTask = [SELECT Id, WhoId 
+                   FROM Task 
+                   WHERE WhoId in: lstLead];
+        
+        System.assert (lstTask != NULL, 'A tarefa foi criada'); 
+    }
+    
+    @isTest 
+    public static void testCreateLeadTaskUpdateNegative(){
+        
+        Lead newLead = new Lead(); 
+        
+        newLead.LastName = 'Teste';
+        newLead.Company = 'Testando SA';
+        
+        insert newLead;
+        
+        newLead.FirstName = 'Rodrigo';
+        update newLead;
+        
+        List<Lead> lstLead = new List<Lead>();
+        lstLead = [SELECT Id 
+                   FROM Lead 
+                   WHERE Id =: newLead.id];
+        
+        List<Task> lstTask = new List<Task>();
+        lstTask = [SELECT Id, WhoId 
+                   FROM Task 
+                   WHERE WhoId in: lstLead];
+        
+        System.assert (lstTask.size() == 0, 'O resultado não é o esperado!');    
+    }
+}
+
+**************************************************** TRIGGER QUESTÃO 9  **************************************************
+
+trigger LeadTriggerQuestao9 on Lead(after insert, after update) {
+    
+    if(Trigger.isAfter) {
+        if(Trigger.isInsert) {
+           LeadHandlerQuestao9.LeadAfter(Trigger.new);
+            
+        }else if(Trigger.isUpdate) {
+           LeadHandlerQuestao9.LeadAfter(Trigger.new);
+        }
+    }
+}
+
+**************************************************** CLASSE SOQL QUESTÃO 9 **************************************************
+
+public with sharing class TaskController {
+    
+    @AuraEnabled(cacheable=true)
+    public static List<Task> getListTask() {
+        return [SELECT WhoId, Subject, ActivityDate 
+                FROM Task 
+                WHERE ActivityDate > Today ORDER BY ActivityDate ASC 
+                LIMIT 5];
+    }
+}
+
+**************************************************** HTML ****************************************************
+
+<template>
+
+    <lightning-card title="Task List" class="content">
+        <div class="slds-m-around_medium">
+            <lightning-datatable key-field="id" data={task} columns={columns} hide-checkbox-column></lightning-datatable>
+        </div>
+    </lightning-card>
+    
+</template>
+
+**************************************************** JS ****************************************************
+
+import { LightningElement, wire } from 'lwc';
+import getListTask from '@salesforce/apex/TaskController.getListTask';
+
+export default class ViewActualTask extends LightningElement {
+   
+    task;
+    error;
+
+    columns = [
+        {label: 'Id', fieldName: 'WhoId'},
+        {label: 'Subject', fieldName: 'Subject'},
+        {label: 'ActivityDate', fieldName: 'ActivityDate'}
+    ]
+    
+    @wire(getListTask)wiredTask({error, data}) {
+        
+        if(data) {
+            this.task = data;
+            this.error = undefined;
+            console.log(data)
+
+        }else if(error) {
+            this.task = undefined;
+            this.error = error;
+            console.log(error)
+            
+        }
+    }
+}
+
+**************************************************** XML ****************************************************
+
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>55.0</apiVersion>
+    <isExposed>true</isExposed>
+    <masterLabel>Lista Tarefas</masterLabel>
     <targets>
         <target>lightning__AppPage</target>
         <target>lightning__HomePage</target>
