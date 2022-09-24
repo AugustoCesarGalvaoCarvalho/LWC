@@ -1,0 +1,98 @@
+1 - O diretor da empresa Yusuki Urameshi está tendo dificuldades em realizar cálculos simples durante a etapa de capitalização de clientes. O time de desenvolvimento foi
+acionado para a criação de um componente que o auxilie na realização de cálculos básicos na página da home na organização.
+1.A - O componente deve conter além dos botões de operações, um botão para limpar os números/informações digitados de nome “Clear” e um botão “=” para mostrar o resultado da
+operação.
+
+************************************************ HTML ************************************************
+
+<template>
+
+    <lightning-card title="Calculadora" icon-name="standard:number_input">
+        <div class="slds-p-around_small">
+
+            <lightning-input label="Primeiro número" type="number" data-id="1" name="Number1" value={num1}
+                onchange={onInputChangeHandler} required></lightning-input><br>
+
+            <lightning-input label="Segundo número" type="number" data-id="2" name="Number2" value={num2}
+                onchange={onInputChangeHandler} required></lightning-input><br>
+
+            <lightning-layout horizontal-align="space">
+                <lightning-layout-item padding="around-small">
+                    <lightning-button label="Somar" variant="Brand" onclick={onButtonCLick}></lightning-button>
+                </lightning-layout-item>
+                <lightning-layout-item padding="around-small">
+                    <lightning-button label="Subtrair" variant="Brand" onclick={onButtonCLick}></lightning-button>
+                </lightning-layout-item>
+                <lightning-layout-item padding="around-small">
+                    <lightning-button label="Multiplicar" variant="Brand" onclick={onButtonCLick}></lightning-button>
+                </lightning-layout-item>
+                <lightning-layout-item padding="around-small">
+                    <lightning-button label="Dividir" variant="Brand" onclick={onButtonCLick}></lightning-button>
+                </lightning-layout-item>
+                <lightning-layout-item padding="around-small">
+                    <lightning-button label="Limpar" variant="destructive" onclick={handleReset}></lightning-button>
+                </lightning-layout-item>
+            </lightning-layout>
+            Resultado = {result}
+        </div>
+    </lightning-card>
+
+</template>
+
+************************************************ JS ************************************************
+
+import { LightningElement, track } from 'lwc';
+
+export default class Calculator extends LightningElement {
+    
+    @track result;
+    num1;
+    num2;
+
+    onInputChangeHandler(event) {
+        const name = event.target.name;
+        if (name === 'Number1') {
+            this.num1 = event.target.value;
+        } else if (name === 'Number2') {
+            this.num2 = event.target.value;
+        }
+    }
+    onButtonCLick(event) {
+        var operation = event.target.label;
+        if (!isNaN(this.num1) && !isNaN(this.num2)) {
+            const numb1 = parseInt(this.num1, 10);
+            const numb2 = parseInt(this.num2, 10);
+            var tempResult = 0;
+            if (operation === 'Somar') {
+                tempResult = `${numb1 + numb2}`;
+            } else if (operation === 'Subtrair') {
+                tempResult = `${numb1 - numb2}`;
+            } else if (operation === 'Multiplicar') {
+                tempResult = `${numb1 * numb2}`;
+            } else if (operation === 'Dividir') {
+                tempResult = `${numb1 / numb2}`;
+            }
+            if (tempResult !== null && tempResult !== '' && tempResult !== undefined && !isNaN(tempResult)) {
+                this.result = tempResult;
+            }
+        }
+    }
+    handleReset() {
+        this.template.querySelectorAll('lightning-input[data-id="1"]').value = null;
+        this.template.querySelectorAll('lightning-input[data-id="2"]').value = null;
+          
+     }
+}
+
+************************************************ XML ************************************************
+
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>55.0</apiVersion>
+    <isExposed>true</isExposed>
+    <targets>
+        <target>lightning__AppPage</target>
+        <target>lightning__HomePage</target>
+        <target>lightning__RecordPage</target>
+    </targets> 
+</LightningComponentBundle>
